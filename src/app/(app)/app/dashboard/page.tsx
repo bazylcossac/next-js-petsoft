@@ -4,16 +4,17 @@ import PetDetails from "@/components/pet-details";
 import PetList from "@/components/pet-list";
 import SearchForm from "@/components/search-form";
 import Stats from "@/components/stats";
+
 import React from "react";
 
-function Page() {
+export default function Page() {
   return (
     <main>
       <div className="flex justify-between items-center mt-6 text-white">
         <Branding />
         <Stats />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[45px_1fr] grid-rows-[45px_300px_500px] gap-4 md:h-[600px] ">
+      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[45px_1fr] grid-rows-[45px_300px_500px] gap-4 md:h-[600px] mt-10">
         <div className="md:row-start-1 md:row-span-1 md:col-start-1 md:col-span-1">
           <SearchForm />
         </div>
@@ -30,23 +31,6 @@ function Page() {
           </ContentBlock>
         </div>
       </div>
-      `
-      {/* <div className="flex flex-row gap-4 justify-between h-[500px]">
-        <div className="flex flex-col">
-          <input className="max-w-[300px]" />
-          <ContentBlock>
-            <div className="bg-white">Benjamin</div>
-          </ContentBlock>
-        </div>
-
-        <div className="w-full">
-          <ContentBlock>
-            <div className="bg-white">Benjamin data</div>
-          </ContentBlock>
-        </div>
-      </div> */}
     </main>
   );
 }
-
-export default Page;

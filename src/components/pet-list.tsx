@@ -1,19 +1,11 @@
+"use client";
+import { usePetsContext } from "@/contexts/pets-context-provider";
+import { PetType } from "@/lib/types";
 import Image from "next/image";
 import React from "react";
 
-async function PetList() {
-  type PetType = {
-    id: string;
-    name: string;
-    ownerName: string;
-    imageUrl: string;
-    age: number;
-    notes: string;
-  };
-  const response = await fetch(
-    "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
-  );
-  const pets = await response.json();
+function PetList() {
+  const pets: PetType[] = usePetsContext();
 
   return (
     <ul className="bg-white">
@@ -25,7 +17,7 @@ async function PetList() {
               alt={`${pet.name} image`}
               width={45}
               height={45}
-              className="rounded-full object-cover"
+              className="w-[45px] h-[45px] rounded-full object-cover"
             />
             <p className="text-base font-semibold">{pet.name}</p>
           </button>
