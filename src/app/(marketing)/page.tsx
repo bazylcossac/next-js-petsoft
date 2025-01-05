@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Logo from "@/components/Logo";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -25,16 +26,13 @@ export default function Home() {
         </p>
 
         <div className="flex flex-row font-medium gap-4">
-          <Link href="/signup">
-            <button className="px-4 py-2 bg-black rounded-3xl text-white">
-              Get Started
-            </button>
-          </Link>
-          <Link href="/login">
-            <button className="px-4 py-2 bg-white rounded-3xl text-black">
-              Log In
-            </button>
-          </Link>
+          <Button asChild className="rounded-2xl">
+            <Link href="/signup">Get started</Link>
+          </Button>
+
+          <Button asChild className="rounded-2xl" variant={"secondary"}>
+            <Link href="/login">Log In</Link>
+          </Button>
         </div>
       </div>
     </main>
