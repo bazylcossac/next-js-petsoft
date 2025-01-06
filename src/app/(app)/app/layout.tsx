@@ -6,20 +6,20 @@ import { PetType } from "@/lib/types";
 import React from "react";
 
 async function Layout({ children }: { children: React.ReactNode }) {
-  const response = await fetch(
+      const response = await fetch(
     "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
   );
   if (!response.ok) {
     throw new Error("htpp error");
   }
-  const pets: PetType[] = await response.json();
+  const petsData: PetType[] = await response.json();
 
   return (
     <div>
       <AppBackground />
       <div className="max-w-[1050px] mx-auto px-4 flex flex-col min-h-screen">
         <AppHeader />
-        <PetContextProvider data={pets}>{children}</PetContextProvider>
+        <PetContextProvider data={petsData}>{children}</PetContextProvider>
         <AppFooter />
       </div>
     </div>

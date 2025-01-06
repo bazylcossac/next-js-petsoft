@@ -2,7 +2,14 @@
 import { PetType } from "@/lib/types";
 import React, { createContext, useContext, useState } from "react";
 
-const PetContext = createContext<PetType[] | null>(null);
+const PetContext = createContext<ContextTypes | null>(null);
+
+type ContextTypes = {
+  pets: PetType[];
+  selectedId: string | null;
+  setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
+  selectedPetObject: PetType | undefined;
+};
 
 function PetContextProvider({
   children,
@@ -12,31 +19,25 @@ function PetContextProvider({
   data: PetType[];
 }) {
   const [pets] = useState<PetType[] | []>(data);
+  const [selectedId, setSelectedId] = useState<string | null>(pets[0].id);
 
-  //   useEffect(() => {
-  //     const fetchPets = async () => {
-  //       const response = await fetch(
-  //         "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
-  //       );
-  //       if (!response.ok) {
-  //         throw new Error("htpp error");
-  //       }
-  //       const pets: PetType[] = await response.json();
-  //       setPets(pets);
-  //     };
-  //     fetchPets();
-  //   }, []);
-
-  return <PetContext.Provider value={pets}>{children}</PetContext.Provider>;
+  const selectedPetObject = pets.find((pet) => pet.id === selectedId);
+  return (
+    <PetContext.Provider
+      value={{ pets, selectedId, setSelectedId, selectedPetObject }}
+    >
+      {children}
+    </PetContext.Provider>
+  );
 }
 
 export function usePetsContext() {
-  const pets = useContext(PetContext);
-  if (!pets) {
+  const petsContextData = useContext(PetContext);
+  if (!petsContextData) {
     throw new Error("Context must be used within PetContext.Provider!");
   }
 
-  return pets;
+  return petsContextData;
 }
 
 export default PetContextProvider;

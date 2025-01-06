@@ -1,17 +1,26 @@
 "use client";
 import { usePetsContext } from "@/contexts/pets-context-provider";
 import { PetType } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import React from "react";
 
 function PetList() {
-  const pets: PetType[] = usePetsContext();
+  const { pets, setSelectedId, selectedId } = usePetsContext();
 
   return (
     <ul className="bg-white">
       {pets.map((pet: PetType) => (
         <li key={pet.id}>
-          <button className="flex flex-row items-center py-2 px-2 gap-4 w-full hover:bg-[#e6e6e6] focus:bg-[#e6e6e6] transition">
+          <button
+            className={cn(
+              "flex flex-row items-center py-2 px-2 gap-4 w-full hover:bg-[#e6e6e6] focus:bg-[#e6e6e6] transition outline-none",
+              {
+                "bg-[#e6e6e6]": selectedId === pet.id,
+              }
+            )}
+            onClick={() => setSelectedId(pet.id)}
+          >
             <Image
               src={pet.imageUrl}
               alt={`${pet.name} image`}
