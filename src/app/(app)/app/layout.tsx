@@ -3,10 +3,11 @@ import AppFooter from "@/components/appfooter";
 import AppHeader from "@/components/appheader";
 import PetContextProvider from "@/contexts/pets-context-provider";
 import { PetType } from "@/lib/types";
+
 import React from "react";
 
 async function Layout({ children }: { children: React.ReactNode }) {
-      const response = await fetch(
+  const response = await fetch(
     "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
   );
   if (!response.ok) {
