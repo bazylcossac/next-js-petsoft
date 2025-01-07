@@ -3,9 +3,18 @@ import { usePetsContext } from "@/contexts/pets-context-provider";
 import { useSearchContext } from "@/contexts/search-context-provider";
 import { PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
-
+import FormDialog from "./form-dialog";
 import Image from "next/image";
 import React from "react";
+import { Button } from "./ui/button";
+import { PlusIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+} from "@radix-ui/react-dialog";
+import { DialogClose, DialogContent, DialogHeader } from "./ui/dialog";
 
 function PetList() {
   const { pets, setSelectedId, selectedId } = usePetsContext();
@@ -39,6 +48,23 @@ function PetList() {
           </button>
         </li>
       ))}
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            size="icon"
+            className="rounded-full absolute bottom-4 right-4"
+          >
+            <PlusIcon />
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-bold text-lg">Add new pet</DialogTitle>
+            <DialogDescription>Add new pet you databse</DialogDescription>
+          </DialogHeader>
+          <FormDialog type="add" />
+        </DialogContent>
+      </Dialog>
     </ul>
   );
 }

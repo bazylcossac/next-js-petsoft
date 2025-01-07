@@ -9,6 +9,7 @@ import {
   DialogFooter,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,9 @@ import { useForm } from "react-hook-form";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { PetType } from "@/lib/types";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import FormDialog from "./form-dialog";
 
 function PetDetails() {
   const { selectedPetObject, checkoutPet } = usePetsContext();
@@ -38,7 +42,7 @@ function PetDetails() {
             height={75}
             className="w-[45px] h-[45px] md:w-[75px] md:h-[75px] rounded-full object-cover"
           />
-          <p className="text-xl md:text-2xl  font-semibold">
+          <p className="text-xl md:text-2xl font-semibold overflow-auto max-w-[250px]">
             {selectedPetObject.name}
           </p>
         </div>
@@ -46,7 +50,8 @@ function PetDetails() {
           {/* <Button variant="secondary" className="rounded-3xl outline-none">
             Edit
           </Button> */}
-          <EditDialog selectedPetObject={selectedPetObject} />
+          <EditDialog selectedPetObject={selectedPetObject} type="edit" />
+          {/* <FormDialog type="edit" selectedPetObject={selectedPetObject} /> */}
           <CheckOutDialog
             selectedPetObject={selectedPetObject}
             checkoutPet={checkoutPet}
@@ -90,8 +95,8 @@ function CheckOutDialog({ checkoutPet, selectedPetObject }) {
             <span className="font-bold">{selectedPetObject.name}?</span>
           </DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete pet from
-            your account.
+            This action cannot be undone. This will delete pet from your
+            account.
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end">
@@ -110,16 +115,22 @@ function CheckOutDialog({ checkoutPet, selectedPetObject }) {
   );
 }
 
-function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
+function EditDialog({
+  selectedPetObject,
+  type,
+}: {
+  selectedPetObject?: PetType;
+  type: "add" | "edit";
+}) {
   console.log(selectedPetObject);
   const { setPets, pets } = usePetsContext();
-  const [petData, setPetData] = useState<PetType>({
-    id: selectedPetObject.id,
-    name: selectedPetObject.name,
-    age: selectedPetObject.age,
-    imageUrl: selectedPetObject.imageUrl,
-    ownerName: selectedPetObject.ownerName,
-    notes: selectedPetObject.notes,
+  const [petData, setPetData] = useState({
+    id: selectedPetObject?.id,
+    name: selectedPetObject?.name,
+    age: selectedPetObject?.age,
+    imageUrl: selectedPetObject?.imageUrl,
+    ownerName: selectedPetObject?.ownerName,
+    notes: selectedPetObject?.notes,
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -131,8 +142,14 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
   }
 
   const { handleSubmit, register } = useForm();
-  const onSubmit = (formData) => {
-    const editedPet = { ...formData, id: selectedPetObject.id };
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const formData = new FormData(event?.currentTarget);
+
+    const newPet = {
+      name: formData.get("name"),
+    };
+
+    const editedPet = { ...formData, id: selectedPetObject?.id };
     const otherPets = pets.filter((pet) => pet.id !== editedPet.id);
 
     setPets([...otherPets, formData]);
@@ -141,23 +158,26 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="secondary" className="rounded-3xl">
-          Edit
+          {type === "add" ? "Add" : "Edit"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Pet Info</DialogTitle>
+          <DialogTitle>Edit {selectedPetObject?.name} Info</DialogTitle>
           <DialogDescription>
             Make changes to pet here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col space-y-2"
+          >
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Pet Name
               </Label>
-              <input
+              <Input
                 {...register("name")}
                 id="name"
                 name="name"
@@ -170,8 +190,9 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
               <Label htmlFor="age" className="text-right">
                 Age
               </Label>
-              <input
+              <Input
                 {...register("age")}
+                type="number"
                 id="age"
                 name="age"
                 value={petData.age}
@@ -183,7 +204,7 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
               <Label htmlFor="image" className="text-right">
                 Image
               </Label>
-              <input
+              <Input
                 {...register("imageUrl")}
                 id="image"
                 name="image"
@@ -196,7 +217,7 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
               <Label htmlFor="owner" className="text-right">
                 Owner
               </Label>
-              <input
+              <Input
                 {...register("ownerName")}
                 id="ownerName"
                 name="ownerName"
@@ -209,16 +230,21 @@ function EditDialog({ selectedPetObject }: { selectedPetObject: PetType }) {
               <Label htmlFor="notes" className="text-right">
                 Notes
               </Label>
-              <textarea
+              <Textarea
                 {...register("notes")}
                 id="notes"
                 name="notes"
                 value={petData.notes}
                 className="col-span-3"
                 onChange={handleChange}
+                rows={3}
               />
             </div>
-            <Button type="submit">Save changes</Button>
+            <DialogClose>
+              <Button type="submit" className="">
+                Save changes
+              </Button>
+            </DialogClose>
           </form>
         </div>
         <DialogFooter></DialogFooter>

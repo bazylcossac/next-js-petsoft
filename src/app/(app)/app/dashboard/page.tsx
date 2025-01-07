@@ -4,9 +4,8 @@ import PetDetails from "@/components/pet-details";
 import PetList from "@/components/pet-list";
 import SearchForm from "@/components/search-form";
 import Stats from "@/components/stats";
-import { Button } from "@/components/ui/button";
+
 import SearchContextProvider from "@/contexts/search-context-provider";
-import { PlusIcon } from "lucide-react";
 
 import React from "react";
 
@@ -26,12 +25,6 @@ export default function Page() {
           <div className="md:row-start-2 md:row-span-1 md:col-start-1 md:col-span-1 ">
             <ContentBlock className="relative">
               <PetList />
-              <Button
-                size="icon"
-                className="rounded-full absolute bottom-4 right-4"
-              >
-                <PlusIcon />
-              </Button>
             </ContentBlock>
           </div>
         </SearchContextProvider>
