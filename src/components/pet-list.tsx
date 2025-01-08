@@ -5,7 +5,7 @@ import { PetType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import FormDialog from "./form-dialog";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
 import {
@@ -14,11 +14,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@radix-ui/react-dialog";
-import { DialogClose, DialogContent, DialogHeader } from "./ui/dialog";
+import { DialogContent, DialogHeader } from "./ui/dialog";
 
 function PetList() {
   const { pets, setSelectedId, selectedId } = usePetsContext();
   const { inputValue } = useSearchContext();
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filteretPets = pets.filter((pet) =>
     pet.name.toLowerCase().includes(inputValue.toLowerCase())
@@ -48,7 +49,7 @@ function PetList() {
           </button>
         </li>
       ))}
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button
             size="icon"
@@ -62,7 +63,7 @@ function PetList() {
             <DialogTitle className="font-bold text-lg">Add new pet</DialogTitle>
             <DialogDescription>Add new pet you databse</DialogDescription>
           </DialogHeader>
-          <FormDialog type="add" />
+          <FormDialog type="add" onSubbmission={() => setDialogOpen(false)} />
         </DialogContent>
       </Dialog>
     </ul>

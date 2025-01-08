@@ -1,16 +1,6 @@
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@radix-ui/react-dialog";
 import { Label } from "@radix-ui/react-label";
-
 import React from "react";
 import { Button } from "./ui/button";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
 import { PetType } from "@/lib/types";
 
@@ -20,67 +10,104 @@ import { Input } from "./ui/input";
 type FormDialogTypes = {
   type: "edit" | "add";
   selectedPetObject?: PetType;
+  onSubbmission: () => void;
 };
 
-function FormDialog({ type, selectedPetObject }: FormDialogTypes) {
-  console.log(selectedPetObject);
-  const { setPets, pets, addNewPet } = usePetsContext();
+function FormDialog({
+  type,
+  selectedPetObject,
+  onSubbmission,
+}: FormDialogTypes) {
+  const { addNewPet, addEditedPet } = usePetsContext();
 
-  const handleAddPet = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event?.currentTarget);
 
-    const newPet = {
-      name: formData.get("name"),
-      ownerName: formData.get("owner"),
-      age: formData.get("age"),
+    const pet = {
+      name: formData.get("name") as string,
+      ownerName: formData.get("ownerName") as string,
+      age: +(formData.get("age") as string),
       imageUrl:
-        formData.get("image") ||
+        (formData.get("image") as string) ||
         "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-      notes: formData.get("notes"),
+      notes: formData.get("notes") as string,
     };
 
-    addNewPet(newPet);
-  };
+    onSubbmission();
 
-  const handleEditPet = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    if (type === "add") {
+      addNewPet(pet);
+    } else {
+      addEditedPet(pet);
+    }
   };
 
   return (
     <form
-      onSubmit={type === "add" ? handleAddPet : handleEditPet}
+      onSubmit={handleSubmit}
       className=" flex flex-col justify-center space-y-2"
     >
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">
           Pet Name
         </Label>
-        <Input id="name" name="name" className="col-span-3" />
+        <Input
+          id="name"
+          name="name"
+          className="col-span-3"
+          required
+          defaultValue={type === "edit" ? selectedPetObject?.name : ""}
+        />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="age" className="text-right">
           Age
         </Label>
-        <Input type="number" id="age" name="age" className="col-span-3" />
+        <Input
+          type="number"
+          id="age"
+          name="age"
+          className="col-span-3"
+          required
+          defaultValue={type === "edit" ? selectedPetObject?.age : ""}
+        />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="image" className="text-right">
           Image
         </Label>
-        <Input id="image" name="image" className="col-span-3" />
+        <Input
+          id="image"
+          name="image"
+          className="col-span-3"
+          defaultValue={type === "edit" ? selectedPetObject?.imageUrl : ""}
+        />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="owner" className="text-right">
+        <Label htmlFor="ownerName" className="text-right">
           Owner
         </Label>
-        <Input id="ownerName" name="ownerName" className="col-span-3" />
+        <Input
+          id="ownerName"
+          name="ownerName"
+          className="col-span-3"
+          required
+          defaultValue={type === "edit" ? selectedPetObject?.ownerName : ""}
+        />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="notes" className="text-right">
           Notes
         </Label>
-        <Textarea id="notes" name="notes" className="col-span-3" rows={3} />
+        <Textarea
+          id="notes"
+          name="notes"
+          className="col-span-3"
+          rows={3}
+          required
+          defaultValue={type === "edit" ? selectedPetObject?.notes : ""}
+        />
       </div>
       <Button type="submit" className="">
         Add pet

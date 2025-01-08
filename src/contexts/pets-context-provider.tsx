@@ -11,7 +11,8 @@ type ContextTypes = {
   setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPetObject: PetType | undefined;
   checkoutPet: (id: string) => void;
-  addNewPet: (newPet: PetType) => void;
+  addNewPet: (newPet: Omit<PetType, "id">) => void;
+  addEditedPet: (editedPet: Omit<PetType, "id">) => void;
 };
 
 function PetContextProvider({
@@ -30,12 +31,16 @@ function PetContextProvider({
     setSelectedId(null);
   }
 
-  function addNewPet(newPet: PetType) {
+  function addNewPet(newPet: Omit<PetType, "id">) {
     const pet = { ...newPet, id: Date.now().toString() };
-
     setPets((prev) => [...prev, pet]);
   }
 
+  function addEditedPet(editedPet: Omit<PetType, "id">) {
+    const restOfPets = pets.filter((pet) => pet.id !== selectedId);
+    const newPet: PetType = { id: selectedId!, ...editedPet };
+    setPets([...restOfPets, newPet]);
+  }
   return (
     <PetContext.Provider
       value={{
@@ -46,6 +51,7 @@ function PetContextProvider({
         selectedPetObject,
         checkoutPet,
         addNewPet,
+        addEditedPet,
       }}
     >
       {children}
