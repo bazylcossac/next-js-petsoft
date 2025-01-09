@@ -2,18 +2,21 @@ import AppBackground from "@/components/appbackground";
 import AppFooter from "@/components/appfooter";
 import AppHeader from "@/components/appheader";
 import PetContextProvider from "@/contexts/pets-context-provider";
+import { prisma } from "@/lib/db";
 import { PetType } from "@/lib/types";
 
 import React from "react";
 
 async function Layout({ children }: { children: React.ReactNode }) {
-  const response = await fetch(
-    "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
-  );
-  if (!response.ok) {
-    throw new Error("htpp error");
-  }
-  const petsData: PetType[] = await response.json();
+  // const response = await fetch(
+  //   "https://bytegrad.com/course-assets/projects/petsoft/api/pets"
+  // );
+  // if (!response.ok) {
+  //   throw new Error("htpp error");
+  // }
+  // const petsData: PetType[] = await response.json();
+
+  const petsData = await prisma.pet.findMany();
 
   return (
     <div>

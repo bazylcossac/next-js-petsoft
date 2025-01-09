@@ -52,8 +52,14 @@ function PetDetails() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle className="font-bold text-lg">
-                  Edit {selectedPetObject.name} data
+                  Edit{" "}
+                  <span className="font-extrabold text-lg">
+                    {selectedPetObject.name}
+                  </span>{" "}
                 </DialogTitle>
+                <DialogDescription>
+                  Edit pet data then save changes
+                </DialogDescription>
               </DialogHeader>
               <FormDialog
                 type="edit"

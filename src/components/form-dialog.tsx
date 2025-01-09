@@ -109,9 +109,11 @@ function FormDialog({
           defaultValue={type === "edit" ? selectedPetObject?.notes : ""}
         />
       </div>
-      <Button type="submit" className="">
-        Add pet
-      </Button>
+      <div className=" flex justify-end pt-2">
+        <Button type="submit" className="w-[150px] ">
+          {type === "add" ? "Add pet" : "Save changes"}
+        </Button>
+      </div>
     </form>
   );
 }

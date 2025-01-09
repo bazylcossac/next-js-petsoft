@@ -33,6 +33,7 @@ function PetContextProvider({
 
   function addNewPet(newPet: Omit<PetType, "id">) {
     const pet = { ...newPet, id: Date.now().toString() };
+
     setPets((prev) => [...prev, pet]);
   }
 
