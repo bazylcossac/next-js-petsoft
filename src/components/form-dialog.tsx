@@ -18,36 +18,21 @@ function FormDialog({
   selectedPetObject,
   onSubbmission,
 }: FormDialogTypes) {
-  const { addNewPet, addEditedPet } = usePetsContext();
+  const { addNewPet, addEditedPet, selectedId } = usePetsContext();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event?.currentTarget);
-
-    const pet = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      age: +(formData.get("age") as string),
-      imageUrl:
-        (formData.get("image") as string) ||
-        "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-      notes: formData.get("notes") as string,
-    };
-
+  const addPet = (formData: FormData) => {
+    // event.preventDefault();
     onSubbmission();
 
     if (type === "add") {
-      addNewPet(pet);
+      addNewPet(formData);
     } else {
-      addEditedPet(pet);
+      addEditedPet(formData, selectedId);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className=" flex flex-col justify-center space-y-2"
-    >
+    <form action={addPet} className=" flex flex-col justify-center space-y-2">
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">
           Pet Name

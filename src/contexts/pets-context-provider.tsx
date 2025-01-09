@@ -1,58 +1,53 @@
 "use client";
+import { addPetToDb, deletePetFromDb, editPetInDb } from "@/actions/actions";
 import { PetType } from "@/lib/types";
+
 import React, { createContext, useContext, useState } from "react";
 
 const PetContext = createContext<ContextTypes | null>(null);
 
 type ContextTypes = {
   pets: PetType[];
-  setPets: React.Dispatch<React.SetStateAction<PetType[] | []>>;
   selectedId: string | null;
   setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPetObject: PetType | undefined;
-  checkoutPet: (id: string) => void;
-  addNewPet: (newPet: Omit<PetType, "id">) => void;
-  addEditedPet: (editedPet: Omit<PetType, "id">) => void;
+
+  addNewPet: (petFormData: FormData) => void;
+  addEditedPet: (newPetFormData: FormData, selectedId: string) => void;
+  deletePet: (petId: string) => void;
 };
 
 function PetContextProvider({
   children,
-  data,
+  data: pets,
 }: {
   children: React.ReactNode;
   data: PetType[];
 }) {
-  const [pets, setPets] = useState<PetType[] | []>(data);
   const [selectedId, setSelectedId] = useState<string | null>(pets[0].id);
 
   const selectedPetObject = pets.find((pet) => pet.id === selectedId);
-  function checkoutPet(id: string) {
-    setPets((prev) => prev.filter((pet) => pet.id !== id));
-    setSelectedId(null);
+
+  async function addNewPet(petFormData: FormData) {
+    await addPetToDb(petFormData);
   }
 
-  function addNewPet(newPet: Omit<PetType, "id">) {
-    const pet = { ...newPet, id: Date.now().toString() };
-
-    setPets((prev) => [...prev, pet]);
+  async function addEditedPet(newPetFormData: FormData, selectedId: string) {
+    await editPetInDb(newPetFormData, selectedId);
   }
-
-  function addEditedPet(editedPet: Omit<PetType, "id">) {
-    const restOfPets = pets.filter((pet) => pet.id !== selectedId);
-    const newPet: PetType = { id: selectedId!, ...editedPet };
-    setPets([...restOfPets, newPet]);
+  async function deletePet(petId: string) {
+    await deletePetFromDb(petId);
   }
   return (
     <PetContext.Provider
       value={{
         pets,
-        setPets,
         selectedId,
         setSelectedId,
         selectedPetObject,
-        checkoutPet,
         addNewPet,
         addEditedPet,
+        deletePet,
       }}
     >
       {children}

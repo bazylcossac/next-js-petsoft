@@ -15,10 +15,12 @@ import { Button } from "./ui/button";
 
 import FormDialog from "./form-dialog";
 import { PetType } from "@/lib/types";
+import { deletePetFromDb } from "@/actions/actions";
 
 function PetDetails() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { selectedPetObject, checkoutPet } = usePetsContext();
+  const [EditDialogOpen, setEditDialogOpen] = useState(false);
+  const [CheckoutDialogOpen, setCheckoutDialogOpen] = useState(false);
+  const { selectedPetObject } = usePetsContext();
   if (!selectedPetObject) {
     return (
       <div className="w-full h-full flex items-center justify-center text-2xl text-black/30">
@@ -43,7 +45,7 @@ function PetDetails() {
           </p>
         </div>
         <div className="flex flex-col gap-4 md:flex-row">
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <Dialog open={EditDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="secondary" className="rounded-3xl">
                 Edit
@@ -64,14 +66,15 @@ function PetDetails() {
               <FormDialog
                 type="edit"
                 selectedPetObject={selectedPetObject}
-                onSubbmission={() => setDialogOpen(false)}
+                onSubbmission={() => setEditDialogOpen(false)}
               />
             </DialogContent>
           </Dialog>
 
           <CheckOutDialog
             selectedPetObject={selectedPetObject}
-            checkoutPet={checkoutPet}
+            dialogOpen={CheckoutDialogOpen}
+            setCheckoutDialogOpen={setCheckoutDialogOpen}
           />
         </div>
       </div>
@@ -98,14 +101,16 @@ function PetDetails() {
 export default PetDetails;
 
 function CheckOutDialog({
-  checkoutPet,
   selectedPetObject,
+  dialogOpen,
+  setCheckoutDialogOpen,
 }: {
-  checkoutPet: (id: string) => void;
   selectedPetObject: PetType;
+  dialogOpen: boolean;
+  setCheckoutDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setCheckoutDialogOpen}>
       <DialogTrigger>
         <p className="rounded-3xl bg-red-500 text-zinc-50 shadow-sm hover:bg-red-500/90 px-3 py-2">
           Checkout
@@ -126,8 +131,9 @@ function CheckOutDialog({
           <Button
             variant="destructive"
             className="rounded-3xl w-[100px]"
-            onClick={() => {
-              checkoutPet(selectedPetObject.id);
+            onClick={async () => {
+              setCheckoutDialogOpen(false);
+              await deletePetFromDb(selectedPetObject.id);
             }}
           >
             Chceckout
