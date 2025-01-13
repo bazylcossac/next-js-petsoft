@@ -1,6 +1,7 @@
 import AppBackground from "@/components/appbackground";
 import AppFooter from "@/components/appfooter";
 import AppHeader from "@/components/appheader";
+import { Toaster } from "@/components/ui/sonner";
 import PetContextProvider from "@/contexts/pets-context-provider";
 import { prisma } from "@/lib/db";
 
@@ -17,6 +18,7 @@ async function Layout({ children }: { children: React.ReactNode }) {
         <PetContextProvider data={petsData}>{children}</PetContextProvider>
         <AppFooter />
       </div>
+      <Toaster position="top-right" />
     </div>
   );
 }

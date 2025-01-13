@@ -25,10 +25,16 @@ function FormDialog({
 
   const addPet = async (formData: FormData) => {
     await sleep(2000);
+
     if (type === "add") {
-      addNewPet(formData);
+      const error = await addNewPet(formData);
+      console.log(error);
+      if (error) {
+        alert(error);
+        return;
+      }
     } else {
-      addEditedPet(formData, selectedId!);
+      await addEditedPet(formData, selectedId!);
     }
     onSubbmission();
   };

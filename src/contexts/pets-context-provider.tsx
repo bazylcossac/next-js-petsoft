@@ -1,6 +1,7 @@
 "use client";
 import { addPetToDb, deletePetFromDb, editPetInDb } from "@/actions/actions";
 import { PetType } from "@/lib/types";
+import { toast } from "sonner";
 
 import React, { createContext, useContext, useState } from "react";
 
@@ -11,7 +12,7 @@ type ContextTypes = {
   selectedId: string | null;
   setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPetObject: PetType | undefined;
-  addNewPet: (petFormData: FormData) => void;
+  addNewPet: (petFormData: FormData) => Promise<void> | { message: string };
   addEditedPet: (newPetFormData: FormData, selectedId: string) => void;
   deletePet: (petId: string) => void;
 };
@@ -28,7 +29,11 @@ function PetContextProvider({
   const selectedPetObject = pets.find((pet) => pet.id === selectedId);
 
   async function addNewPet(petFormData: FormData) {
-    await addPetToDb(petFormData);
+    const error = await addPetToDb(petFormData);
+    if (error) {
+      toast.warning(error.message);
+      return;
+    }
   }
 
   async function addEditedPet(newPetFormData: FormData, selectedId: string) {
