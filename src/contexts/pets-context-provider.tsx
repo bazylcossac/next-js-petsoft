@@ -3,7 +3,12 @@ import { addPetToDb, deletePetFromDb, editPetInDb } from "@/actions/actions";
 import { PetType } from "@/lib/types";
 import { toast } from "sonner";
 
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useOptimistic,
+  useState,
+} from "react";
 
 const PetContext = createContext<ContextTypes | null>(null);
 
@@ -12,32 +17,50 @@ type ContextTypes = {
   selectedId: string | null;
   setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPetObject: PetType | undefined;
-  addNewPet: (petFormData: FormData) => Promise<void> | { message: string };
-  addEditedPet: (newPetFormData: FormData, selectedId: string) => void;
+  addNewPet: (
+    petData: Omit<PetType, "id">
+  ) => Promise<void> | { message: string };
+  addEditedPet: (
+    newPetFormData: Omit<PetType, "id">,
+    selectedId: string
+  ) => Promise<void> | { message: string };
   deletePet: (petId: string) => void;
 };
 
 function PetContextProvider({
   children,
-  data: pets,
+  data,
 }: {
   children: React.ReactNode;
   data: PetType[];
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(pets[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(data[0].id);
+  const [optimisticPets, setOptimisticPets] = useOptimistic(
+    data,
+    (state, newPet) => [...state, { id: Math.random().toString(), ...newPet }]
+  );
 
-  const selectedPetObject = pets.find((pet) => pet.id === selectedId);
+  const selectedPetObject = optimisticPets.find((pet) => pet.id === selectedId);
 
-  async function addNewPet(petFormData: FormData) {
-    const error = await addPetToDb(petFormData);
+  async function addNewPet(petData: Omit<PetType, "id">) {
+    setOptimisticPets(petData);
+    const error = await addPetToDb(petData);
     if (error) {
       toast.warning(error.message);
       return;
     }
   }
 
-  async function addEditedPet(newPetFormData: FormData, selectedId: string) {
-    await editPetInDb(newPetFormData, selectedId);
+  async function addEditedPet(
+    newPetFormData: Omit<PetType, "id">,
+    selectedId: string
+  ) {
+    setOptimisticPets(newPetFormData);
+    const error = await editPetInDb(newPetFormData, selectedId);
+    if (error) {
+      toast.warning(error.message);
+      return;
+    }
   }
   async function deletePet(petId: string) {
     await deletePetFromDb(petId);
@@ -45,7 +68,7 @@ function PetContextProvider({
   return (
     <PetContext.Provider
       value={{
-        pets,
+        pets: optimisticPets,
         selectedId,
         selectedPetObject,
         setSelectedId,

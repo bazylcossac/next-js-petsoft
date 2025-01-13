@@ -6,8 +6,8 @@ import { PetType } from "@/lib/types";
 
 import { usePetsContext } from "@/contexts/pets-context-provider";
 import { Input } from "./ui/input";
-import { sleep } from "@/utils/sleep";
-import { useFormStatus } from "react-dom";
+
+import { flushSync, useFormStatus } from "react-dom";
 import { cn } from "@/lib/utils";
 
 type FormDialogTypes = {
@@ -23,24 +23,32 @@ function FormDialog({
 }: FormDialogTypes) {
   const { addNewPet, addEditedPet, selectedId } = usePetsContext();
 
-  const addPet = async (formData: FormData) => {
-    await sleep(2000);
+  const handlePet = async (formData: FormData) => {
+    flushSync(() => {
+      onSubbmission();
+    });
+    const petData = {
+      name: formData.get("name") as string,
+      ownerName: formData.get("ownerName") as string,
+      age: +(formData.get("age") as string),
+      imageUrl:
+        (formData.get("image") as string) ||
+        "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
+      notes: formData.get("notes") as string,
+    };
 
     if (type === "add") {
-      const error = await addNewPet(formData);
-      console.log(error);
-      if (error) {
-        alert(error);
-        return;
-      }
+      await addNewPet(petData);
     } else {
-      await addEditedPet(formData, selectedId!);
+      await addEditedPet(petData, selectedId!);
     }
-    onSubbmission();
   };
 
   return (
-    <form action={addPet} className=" flex flex-col justify-center space-y-2">
+    <form
+      action={handlePet}
+      className=" flex flex-col justify-center space-y-2"
+    >
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">
           Pet Name
