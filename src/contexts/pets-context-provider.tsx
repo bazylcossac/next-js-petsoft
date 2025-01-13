@@ -11,7 +11,6 @@ type ContextTypes = {
   selectedId: string | null;
   setSelectedId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPetObject: PetType | undefined;
-
   addNewPet: (petFormData: FormData) => void;
   addEditedPet: (newPetFormData: FormData, selectedId: string) => void;
   deletePet: (petId: string) => void;
@@ -43,8 +42,8 @@ function PetContextProvider({
       value={{
         pets,
         selectedId,
-        setSelectedId,
         selectedPetObject,
+        setSelectedId,
         addNewPet,
         addEditedPet,
         deletePet,

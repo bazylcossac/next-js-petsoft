@@ -6,6 +6,9 @@ import { PetType } from "@/lib/types";
 
 import { usePetsContext } from "@/contexts/pets-context-provider";
 import { Input } from "./ui/input";
+import { sleep } from "@/utils/sleep";
+import { useFormStatus } from "react-dom";
+import { cn } from "@/lib/utils";
 
 type FormDialogTypes = {
   type: "edit" | "add";
@@ -20,15 +23,14 @@ function FormDialog({
 }: FormDialogTypes) {
   const { addNewPet, addEditedPet, selectedId } = usePetsContext();
 
-  const addPet = (formData: FormData) => {
-    // event.preventDefault();
-    onSubbmission();
-
+  const addPet = async (formData: FormData) => {
+    await sleep(2000);
     if (type === "add") {
       addNewPet(formData);
     } else {
-      addEditedPet(formData, selectedId);
+      addEditedPet(formData, selectedId!);
     }
+    onSubbmission();
   };
 
   return (
@@ -95,11 +97,25 @@ function FormDialog({
         />
       </div>
       <div className=" flex justify-end pt-2">
-        <Button type="submit" className="w-[150px] ">
-          {type === "add" ? "Add pet" : "Save changes"}
-        </Button>
+        <SubmitButton type={type} />
       </div>
     </form>
+  );
+}
+
+function SubmitButton(type: "edit" | "add") {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-[150px]" disabled={pending}>
+      <p
+        className={cn({
+          hidden: pending,
+        })}
+      >
+        {type === "add" ? "Add pet" : "Save changes"}
+      </p>
+      {pending && <p className="animate-pulse">Saving...</p>}
+    </Button>
   );
 }
 
