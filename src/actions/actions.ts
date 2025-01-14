@@ -2,12 +2,10 @@
 
 import { prisma } from "@/lib/db";
 import { PetType } from "@/lib/types";
-import { sleep } from "@/utils/sleep";
 
 import { revalidatePath } from "next/cache";
 
 export async function addPetToDb(pet: Omit<PetType, "id">) {
-  await sleep(2000);
   try {
     await prisma.pet.create({
       data: pet,
@@ -33,7 +31,6 @@ export async function editPetInDb(
   updatedPet: Omit<PetType, "id">,
   selectedId: string
 ) {
-  await sleep(2000);
   try {
     await prisma.pet.update({
       where: {
@@ -41,7 +38,7 @@ export async function editPetInDb(
       },
       data: updatedPet,
     });
-  } catch (err) {
+  } catch (error) {
     return {
       message: "Failed to update pet",
     };
