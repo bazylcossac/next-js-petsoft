@@ -7,39 +7,15 @@ import { PetType } from "@/lib/types";
 import { useForm } from "react-hook-form";
 import { usePetsContext } from "@/contexts/pets-context-provider";
 import { Input } from "./ui/input";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { flushSync } from "react-dom";
+import { formSchema, formType } from "@/lib/validations";
 
 type FormDialogTypes = {
   type: "edit" | "add";
   selectedPetObject?: PetType;
   onSubbmission: () => void;
 };
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Provide a real name" })
-    .max(50, { message: "Name should be less than 50 characters" })
-    .nonempty("Please provide name")
-    .trim(),
-  age: z.coerce.number().int().positive().max(99999),
-  ownerName: z
-    .string()
-    .max(50, "Owner name should be less than 50 characters")
-    .nonempty("Please provide owner name")
-    .trim(),
-  imageUrl: z.union([
-    z.literal(""),
-    z.string().url({ message: "Image url must be a valid url" }).trim(),
-  ]),
-  notes: z.union([
-    z.literal(""),
-    z.string().max(1000, "Too many characters!").trim(),
-  ]),
-});
-type formType = z.infer<typeof formSchema>;
 
 function FormDialog({
   type,
@@ -52,9 +28,10 @@ function FormDialog({
     register,
     formState: { errors },
     trigger,
+    getValues,
   } = useForm<formType>({ resolver: zodResolver(formSchema) });
 
-  const handlePet = async (formData: FormData) => {
+  const handlePet = async () => {
     const result = await trigger();
 
     if (!result) {
@@ -65,24 +42,10 @@ function FormDialog({
       onSubbmission();
     });
 
-    const petData = {
-      name: formData.get("name") as string,
-      ownerName: formData.get("ownerName") as string,
-      age: +(formData.get("age") as string),
-      imageUrl:
-        (formData.get("image") as string) ||
-        "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-      notes: formData.get("notes") as string,
-    };
-    // const petData = {
-    //   name: formData.name,
-    //   ownerName: formData.ownerName,
-    //   age: +formData.age,
-    //   imageUrl:
-    //     formData.imageUrl ||
-    //     "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png",
-    //   notes: formData.notes,
-    // };
+    const petData = getValues();
+    petData.imageUrl =
+      petData.imageUrl ||
+      "https://bytegrad.com/course-assets/react-nextjs/pet-placeholder.png";
 
     if (type === "add") {
       await addNewPet(petData);
