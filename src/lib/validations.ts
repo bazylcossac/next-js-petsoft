@@ -1,6 +1,16 @@
 import { z } from "zod";
 
-export const IdSchema = z.string().uuid()
+export const IdSchema = z.string().uuid();
+export const emailSchema = z
+  .string({ required_error: "Email is required" })
+  .min(1, "Email is required")
+  .email("Invalid email");
+
+export const passwordSchema = z
+  .string({ required_error: "Password is required" })
+  .min(1, "Password is required")
+
+  .max(32, "Password must be less than 32 characters");
 
 export const formSchema = z
   .object({

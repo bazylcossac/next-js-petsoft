@@ -5,7 +5,7 @@ import React from "react";
 
 function Page() {
   return (
-    <div className="flex flex-col ">
+    <div className="flex flex-col">
       <H1 className="my-4 text-center">Sign Up</H1>
       <AuthForm type="signin" />
       <span className="mt-2">
