@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { redirect } from "next/navigation";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/login",
@@ -10,12 +12,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized: ({ auth, request }) => {
       const isLogged = !!auth?.user;
       const isTryingToAccess = request.nextUrl.pathname.includes("/app");
+      const isTryingToAccessLogIn = request.nextUrl.pathname.includes("/login");
 
       if (!isLogged && isTryingToAccess) {
         return false;
-      } else if (isLogged && isTryingToAccess) {
+      }
+      if (isLogged && isTryingToAccess) {
         return true;
       }
+      if (isLogged && !isTryingToAccess) {
+        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+      }
+      if (!isLogged && !isTryingToAccess) return true;
     },
   },
   providers: [

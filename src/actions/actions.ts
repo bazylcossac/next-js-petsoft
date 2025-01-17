@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn } from "@/app/auth";
+import { signIn, signOut } from "@/app/auth";
 import { prisma } from "@/lib/db";
 
 import {
@@ -9,9 +9,8 @@ import {
   IdSchema,
   passwordSchema,
 } from "@/lib/validations";
-
+import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/dist/server/api-utils";
 
 export async function addPetToDb(pet: unknown) {
   const validatedPet = formSchema.safeParse(pet);
@@ -128,6 +127,28 @@ export async function createUser(email: unknown, password: unknown) {
 
 export async function logIn(formData: FormData) {
   const authData = Object.fromEntries(formData.entries());
-  console.log(authData);
-  await signIn("credentials", formData, { redirectTo: "/app/dashboard" });
+  await signIn("credentials", { ...authData, redirectTo: "/app/dashboard" });
+}
+
+export async function logOut() {
+  await signOut({ redirectTo: "/login" });
+}
+
+export async function signUp(formData: FormData) {
+  "use server";
+
+  const email = formData.get("email");
+  const password = formData.get("password");
+  const hashPassword = await bcrypt.hash(password as string, 10);
+  try {
+    await prisma.user.create({
+      data: {
+        email: email as string,
+        hashPassword: hashPassword,
+      },
+    });
+    await logIn(formData);
+  } catch (err) {
+    console.error("Account already exists");
+  }
 }

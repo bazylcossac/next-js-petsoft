@@ -2,7 +2,7 @@ import React from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { logIn } from "@/actions/actions";
+import { logIn, signUp } from "@/actions/actions";
 
 type AuthFormTypes = {
   type: "login" | "signin";
@@ -10,7 +10,10 @@ type AuthFormTypes = {
 
 function AuthForm({ type }: AuthFormTypes) {
   return (
-    <form className="flex flex-col space-y-4" action={logIn}>
+    <form
+      className="flex flex-col space-y-4"
+      action={type === "login" ? logIn : signUp}
+    >
       <div>
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" />

@@ -34,7 +34,9 @@ function PetContextProvider({
   children: React.ReactNode;
   data: PetType[];
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(data[0].id);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    data[0].id || null
+  );
   const [optimisticPets, setOptimisticPets] = useOptimistic(
     data,
     (state, { action, payload }) => {
