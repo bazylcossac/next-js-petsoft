@@ -9,10 +9,15 @@ import React from "react";
 import { redirect } from "next/navigation";
 
 async function Layout({ children }: { children: React.ReactNode }) {
-  // const loggedUser = await prisma.get()
-  const petsData = await prisma.pet.findMany();
-
   const session = await auth();
+  if (!session) {
+    redirect("/login");
+  }
+  const petsData = await prisma.pet.findMany({
+    where: {
+      userId: session?.user?.id,
+    },
+  });
 
   if (!session) return redirect("/login");
   return (

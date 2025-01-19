@@ -9,6 +9,7 @@ import React, {
   useOptimistic,
   useState,
 } from "react";
+import { auth } from "@/app/auth";
 
 const PetContext = createContext<ContextTypes | null>(null);
 
@@ -35,14 +36,22 @@ function PetContextProvider({
   data: PetType[];
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(
-    data[0].id || null
+    data[0]?.id || null
   );
+
   const [optimisticPets, setOptimisticPets] = useOptimistic(
     data,
     (state, { action, payload }) => {
       switch (action) {
         case "add":
-          return [...state, { id: Math.random().toString(), ...payload }];
+          return [
+            ...state,
+            {
+              id: Math.random().toString(),
+
+              ...payload,
+            },
+          ];
         case "edit":
           return state.map((pet) => {
             if (pet.id === payload.id) {

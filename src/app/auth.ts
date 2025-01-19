@@ -2,7 +2,6 @@ import { prisma } from "@/lib/db";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import { redirect } from "next/navigation";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -12,7 +11,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     authorized: ({ auth, request }) => {
       const isLogged = !!auth?.user;
       const isTryingToAccess = request.nextUrl.pathname.includes("/app");
-      const isTryingToAccessLogIn = request.nextUrl.pathname.includes("/login");
 
       if (!isLogged && isTryingToAccess) {
         return false;
@@ -24,6 +22,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return Response.redirect(new URL("/app/dashboard", request.nextUrl));
       }
       if (!isLogged && !isTryingToAccess) return true;
+    },
+    jwt: ({ token, user }) => {
+      if (user) {
+        token.userId = user.id;
+      }
+      return token;
+    },
+    session: ({ session, token }) => {
+      if (session.user) {
+        session.user.id = token.userId;
+      }
+      return session;
     },
   },
   providers: [
@@ -48,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
         if (!isMatch) {
           console.log("Invalid credentials.");
+          return null;
         }
         return user;
       },
