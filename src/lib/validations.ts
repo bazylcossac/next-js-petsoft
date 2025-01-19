@@ -1,4 +1,3 @@
-import { logIn } from "@/actions/actions";
 import { z } from "zod";
 
 export const IdSchema = z.string().uuid();
@@ -22,7 +21,6 @@ export const authSchema = z.object({
   password: z
     .string({ required_error: "Password is required" })
     .min(1, "Password is required")
-
     .max(32, "Password must be less than 32 characters"),
 });
 

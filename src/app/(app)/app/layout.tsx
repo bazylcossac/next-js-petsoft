@@ -19,7 +19,6 @@ async function Layout({ children }: { children: React.ReactNode }) {
     },
   });
 
-  if (!session) return redirect("/login");
   return (
     <div>
       <pre>{JSON.stringify(session, null, 2)}</pre>

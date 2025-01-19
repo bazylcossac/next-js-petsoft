@@ -10,7 +10,9 @@ import {
   authSchema,
   passwordSchema,
 } from "@/lib/validations";
+import { sleep } from "@/utils/sleep";
 import bcrypt from "bcrypt";
+import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -184,7 +186,7 @@ export async function createUser(email: unknown, password: unknown) {
   }
 }
 
-export async function logIn(formData: unknown) {
+export async function logIn(prevState: unknown, formData: unknown) {
   if (!(formData instanceof FormData)) {
     return {
       message: "Invalid form data",
@@ -206,6 +208,21 @@ export async function logIn(formData: unknown) {
       redirectTo: "/app/dashboard",
     });
   } catch (err) {
+    if (err instanceof AuthError) {
+      switch (err.type) {
+        case "CredentialsSignin":
+          return {
+            message: "Invalid credentials",
+          };
+        default:
+          return {
+            message: "Couldn't log in",
+          };
+      }
+
+      throw err;
+    }
+    redirect("/app/dashboard");
     return {
       message: "Account do not exists",
     };
@@ -213,23 +230,31 @@ export async function logIn(formData: unknown) {
 }
 
 export async function logOut() {
+  await sleep(2000);
   await signOut({ redirectTo: "/login" });
 }
 
-export async function signUp(formData: FormData) {
-  "use server";
+export async function signUp(prevState: unknown, formData: unknown) {
+  const formDataObject = Object.fromEntries(formData.entries());
+  const validateFormData = authSchema.safeParse(formDataObject);
 
-  const email = formData.get("email");
-  const password = formData.get("password");
-  const hashPassword = await bcrypt.hash(password as string, 10);
+  if (!validateFormData.success) {
+    return {
+      message: "Invalid credentials type",
+    };
+  }
+
+  const { email, password } = validateFormData.data;
+
+  const hashPassword = await bcrypt.hash(password, 10);
   try {
     await prisma.user.create({
       data: {
-        email: email as string,
+        email: email,
         hashPassword: hashPassword,
       },
     });
-    await logIn(formData);
+    await logIn(prevState, formData);
   } catch (err) {
     return {
       message: "Account already exists",
