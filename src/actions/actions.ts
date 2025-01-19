@@ -7,6 +7,7 @@ import {
   emailSchema,
   formSchema,
   IdSchema,
+  authSchema,
   passwordSchema,
 } from "@/lib/validations";
 import bcrypt from "bcrypt";
@@ -160,7 +161,7 @@ export async function getUserFromDb(email: unknown, password: unknown) {
 }
 
 export async function createUser(email: unknown, password: unknown) {
-  const validatedEmail = emailSchema.safeParse(emailau);
+  const validatedEmail = emailSchema.safeParse(email);
   const validatePassword = passwordSchema.safeParse(password);
 
   if (!validatePassword.success || !validatedEmail.success) {
@@ -183,10 +184,27 @@ export async function createUser(email: unknown, password: unknown) {
   }
 }
 
-export async function logIn(formData: FormData) {
-  const authData = Object.fromEntries(formData.entries());
+export async function logIn(formData: unknown) {
+  if (!(formData instanceof FormData)) {
+    return {
+      message: "Invalid form data",
+    };
+  }
+
+  const formDataObject = Object.fromEntries(formData.entries());
+  const validateFormData = authSchema.safeParse(formDataObject);
+
+  if (!validateFormData.success) {
+    return {
+      message: "Invalid credentials",
+    };
+  }
+
   try {
-    await signIn("credentials", { ...authData, redirectTo: "/app/dashboard" });
+    await signIn("credentials", {
+      ...validateFormData.data,
+      redirectTo: "/app/dashboard",
+    });
   } catch (err) {
     return {
       message: "Account do not exists",

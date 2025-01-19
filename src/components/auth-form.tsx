@@ -16,11 +16,11 @@ function AuthForm({ type }: AuthFormTypes) {
     >
       <div>
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" />
+        <Input id="email" name="email" type="email" required />
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
-        <Input id="password" name="password" type="password" />
+        <Input id="password" name="password" type="password" required />
       </div>
       <Button>{type == "login" ? "Log In" : "Sign In"}</Button>
     </form>

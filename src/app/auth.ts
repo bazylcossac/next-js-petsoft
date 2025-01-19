@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { authSchema } from "@/lib/validations";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -43,9 +44,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
       authorize: async (credentials) => {
+        const validateCredentials = authSchema.safeParse(credentials);
+
+        if (!validateCredentials.success) {
+          return null;
+        }
+
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email,
+            email: validateCredentials.data.email,
           },
         });
         console.log(user);
@@ -53,7 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Invalid credentials.");
         }
         const isMatch = await bcrypt.compare(
-          credentials.password,
+          validateCredentials.data.password,
           user.hashPassword
         );
         if (!isMatch) {

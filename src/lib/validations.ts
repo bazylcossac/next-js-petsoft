@@ -1,6 +1,8 @@
+import { logIn } from "@/actions/actions";
 import { z } from "zod";
 
 export const IdSchema = z.string().uuid();
+
 export const emailSchema = z
   .string({ required_error: "Email is required" })
   .min(1, "Email is required")
@@ -11,6 +13,20 @@ export const passwordSchema = z
   .min(1, "Password is required")
 
   .max(32, "Password must be less than 32 characters");
+
+export const authSchema = z.object({
+  email: z
+    .string({ required_error: "Email is required" })
+    .min(1, "Email is required")
+    .email("Invalid email"),
+  password: z
+    .string({ required_error: "Password is required" })
+    .min(1, "Password is required")
+
+    .max(32, "Password must be less than 32 characters"),
+});
+
+export type TAuth = z.infer<typeof authSchema>;
 
 export const formSchema = z
   .object({
