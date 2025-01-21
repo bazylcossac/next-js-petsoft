@@ -16,23 +16,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!isLogged && isTryingToAccess) {
         return false;
       }
-      if (isLogged && isTryingToAccess) {
+      if (isLogged && isTryingToAccess && !auth?.user?.hasAccess) {
+        return Response.redirect(new URL("/payment", request.nextUrl));
+      }
+      if (isLogged && isTryingToAccess && auth?.user?.hasAccess) {
         return true;
       }
       if (isLogged && !isTryingToAccess) {
-        return Response.redirect(new URL("/app/dashboard", request.nextUrl));
+        if (
+          request.nextUrl.pathname.includes("/login") ||
+          request.nextUrl.pathname.includes("/signup")
+        ) {
+          return Response.redirect(new URL("/payment", request.nextUrl));
+        }
+        return true;
       }
       if (!isLogged && !isTryingToAccess) return true;
     },
     jwt: ({ token, user }) => {
       if (user) {
         token.userId = user.id;
+        token.hasAccess = user.hasAccess;
       }
       return token;
     },
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.userId;
+        session.user.hasAccess = token.hasAccess;
       }
       return session;
     },

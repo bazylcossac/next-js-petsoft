@@ -16,6 +16,9 @@ import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 export async function addPetToDb(pet: unknown) {
   const session = await auth();
   if (!session?.user) {
@@ -260,4 +263,26 @@ export async function signUp(prevState: unknown, formData: unknown) {
       message: "Account already exists",
     };
   }
+}
+
+/// --- payment actions ---
+
+export async function createCheckoutSession() {
+  const session = await auth();
+  if (!session) {
+    redirect("/login");
+  }
+  const checout = await stripe.checkout.sessions.create({
+    customer_email: session.user?.email,
+    line_items: [
+      {
+        price: "price_1Qjew0Eavb0ewig16N9zaG8z",
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: `${process.env.BASE_URL}/payment?success=true`,
+    cancel_url: `${process.env.BASE_URL}/payment?success=false`,
+  });
+  redirect(checout.url);
 }

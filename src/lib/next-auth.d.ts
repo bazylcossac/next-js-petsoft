@@ -4,3 +4,15 @@ declare module "auth/core/jwt" {
     userId: string;
   }
 }
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    hasAccess: boolean;
+  }
+  interface Session {
+    user: User & {
+      id: string;
+    };
+  }
+}
