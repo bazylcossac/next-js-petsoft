@@ -4,7 +4,6 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { logIn, signUp } from "@/actions/actions";
 import AuthButton from "@/components/auth-button";
-import { toast } from "sonner";
 
 type AuthFormTypes = {
   type: "login" | "signin";

@@ -38,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   providers: [
+    /// on log in event
     Credentials({
       credentials: {
         email: {},
